@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:columnCount="3"
+            android:columnCount="4"
             android:paddingHorizontal="16dp"
             >
 
@@ -124,6 +124,16 @@
                 android:layout_column="0"
                 android:text="duration" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="5"
+                android:layout_marginTop="20dp"
+                android:layout_column="0"
+                android:text="enable" />
+
+
+
             <SeekBar
                 android:id="@+id/seekBar5"
                 android:layout_width="120dp"
@@ -171,10 +181,18 @@
                 android:layout_column="2"
                 android:ems="2"
                 android:inputType="number" />
-            
-            
 
-            
+            <Switch
+                android:id="@+id/enableSwitch1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="5"
+                android:checked="true"
+                android:layout_column="1"
+                android:layout_gravity="center"
+                />
+
+
         </GridLayout>
 
         <LinearLayout
