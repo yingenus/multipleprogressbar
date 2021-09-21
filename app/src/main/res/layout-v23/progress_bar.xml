@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.yingenus.multipleprogressbar.MultipleProgressBar
+    xmlns:android ="http://schemas.android.com/apk/res/android"
+    xmlns:app ="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/test_multipleLineProgressBar"
+    android:layout_width="250dp"
+    android:layout_height="250dp"
+    app:layout_constraintBottom_toTopOf="@id/cardView"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+
+    app:mpb_dividerSize="10dp"
+    app:mpb_progressSize="20dp"
+    app:mpb_animate="true"
+    app:mpb_animationDuration="6000">
+
+    <com.yingenus.multipleprogressbar.ProgressItem
+        android:id="@+id/item1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:mpb_orientation="right"
+        app:mpb_progress="25"
+        app:mpb_progressColor="@color/color1"
+        app:mpb_secondaryProgress="100"
+        app:mpb_secondaryProgressColor="@color/colorsecond1" />
+
+    <com.yingenus.multipleprogressbar.ProgressItem
+        android:id="@+id/item2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:mpb_orientation="left"
+        app:mpb_progress="40"
+        app:mpb_progressColor="@color/color2"
+        app:mpb_secondaryProgress="100"
+        app:mpb_secondaryProgressColor="@color/colorsecond2" />
+</com.yingenus.multipleprogressbar.MultipleProgressBar>

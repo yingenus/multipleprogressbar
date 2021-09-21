@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+
+    <include
+        layout="@layout/progress_bar"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        app:layout_constraintBottom_toTopOf="@id/cardView"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginVertical="16dp"
+        android:elevation="5dp"
+        app:cardCornerRadius="10dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/test_multipleLineProgressBar">
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:columnCount="3"
+            android:paddingHorizontal="16dp"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="0"
+                android:layout_marginTop="20dp"
+                android:layout_column="0"
+                android:text="progressSize" />
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="120dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_row="0"
+                android:layout_column="1"
+                android:min = "0"
+                android:max="40" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="1"
+                android:layout_marginTop="20dp"
+                android:layout_column="0"
+                android:text="dividerSize" />
+
+            <SeekBar
+                android:id="@+id/seekBar2"
+                android:layout_width="120dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="20dp"
+                
+                android:layout_row="1"
+                android:layout_column="1"
+                android:min = "0"
+                android:max="40" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="2"
+                android:layout_marginTop="20dp"
+                android:layout_column="0"
+                android:text="progress" />
+
+            
+
+            <SeekBar
+                android:id="@+id/seekBar3"
+                android:layout_width="120dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_row="2"
+                android:layout_column="1"
+                android:max="100" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="3"
+                android:layout_marginTop="20dp"
+                android:layout_column="0"
+                android:text="secProgress" />
+            
+            <SeekBar
+                android:id="@+id/seekBar4"
+                android:layout_width="120dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_row="3"
+                android:layout_column="1"
+                android:max="100" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="4"
+                android:layout_marginTop="20dp"
+                android:layout_column="0"
+                android:text="duration" />
+
+            <SeekBar
+                android:id="@+id/seekBar5"
+                android:layout_width="120dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_row="4"
+                android:layout_column="1"
+                android:min = "200"
+                android:max="10000" />
+
+
+            <EditText
+                android:id="@+id/editTextNumber"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_row="0"
+                android:layout_column="2"
+                android:ems="2"
+                android:inputType="number" />
+            <EditText
+                android:id="@+id/editTextNumber2"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_row="1"
+                android:layout_column="2"
+                android:ems="2"
+                android:inputType="number" />
+            <EditText
+                android:id="@+id/editTextNumber3"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_row="2"
+                android:layout_column="2"
+                android:ems="2"
+                android:inputType="number" />
+            <EditText
+                android:id="@+id/editTextNumber4"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_row="3"
+                android:layout_column="2"
+                android:ems="2"
+                android:inputType="number" />
+            
+            
+
+            
+        </GridLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="16dp">
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="animate"
+                />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_add"
+                android:layout_marginLeft="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                
+                android:text="add"
+                />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_del"
+                android:layout_marginLeft="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                
+                android:text="del"
+                />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
