@@ -1,15 +1,22 @@
 package com.yingenus.multipleprogressbar
 
 import android.animation.Animator
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.ColorStateList
 import android.content.res.TypedArray
+import android.util.Log
+import android.util.Property
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.animation.LinearInterpolator
 import android.view.animation.RotateAnimation
 import androidx.annotation.ColorInt
 import androidx.annotation.StyleableRes
+import java.lang.ref.WeakReference
 import kotlin.reflect.KMutableProperty1
 
 internal const val correction = 270
@@ -92,6 +99,28 @@ internal fun getValueAnimator(progressItem: ProgressItem, parameter : KMutablePr
     }
 
     return animation
+}
+
+internal fun getRotatedAnimator(rotateRight: Boolean, view : ProgressItem): Animator {
+
+    val finalAngle = if (rotateRight) 360 else -360
+    val animation = ObjectAnimator.ofInt(view, ProgressAngleProperty(Int::class.java,"initialAngle") , 0 , finalAngle)
+    animation.repeatMode = ValueAnimator.RESTART
+    animation.repeatCount = ValueAnimator.INFINITE
+    animation.interpolator = LinearInterpolator()
+
+    return animation
+}
+
+private class ProgressAngleProperty(type: Class<Int>?, name: String?) : Property<ProgressItem, Int>(type, name) {
+    override fun set(`object`: ProgressItem?, value: Int?) {
+        `object`?.initialAngle = value?: 0
+        `object`?.invalidate()
+    }
+
+    override fun get(`object`: ProgressItem?): Int {
+        return `object`?.initialAngle?: 0
+    }
 }
 
 internal fun getRotatedAnimation(animationDuration : Long, rotateRight: Boolean): RelativeRotateAnimation {
