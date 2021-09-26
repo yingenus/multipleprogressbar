@@ -7,9 +7,8 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.SeekBar
+import android.widget.*
+import androidx.core.view.children
 import com.yingenus.multipleprogressbar.MultipleProgressBar
 import com.yingenus.multipleprogressbar.ProgressItem
 
@@ -44,6 +43,15 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, View.
         findViewById<Button>(R.id.button_start).setOnClickListener(this)
         findViewById<Button>(R.id.button_add).setOnClickListener(this)
         findViewById<Button>(R.id.button_del).setOnClickListener(this)
+
+        findViewById<Switch>(R.id.enableSwitch1).setOnCheckedChangeListener {  _ , checked->
+            val childs = progressBar.children
+            for (child in childs){
+                if (child is ProgressItem){
+                    child.isEnabled = checked
+                }
+            }
+        }
 
         progressSizeEd.addTextChangedListener(object : TextWatcher{
             override fun afterTextChanged(s: Editable?) {
@@ -173,8 +181,9 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, View.
                 progressBar.animationDuration = progress
             }
         }
-
     }
+
+
 
     override fun onStartTrackingTouch(seekBar: SeekBar?) {}
     override fun onStopTrackingTouch(seekBar: SeekBar?) {}

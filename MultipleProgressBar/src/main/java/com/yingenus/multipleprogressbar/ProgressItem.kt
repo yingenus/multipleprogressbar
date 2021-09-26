@@ -15,6 +15,8 @@ import androidx.annotation.ColorRes
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import androidx.core.animation.doOnCancel
+import androidx.core.animation.doOnEnd
 
 
 public class ProgressItem : View{
@@ -119,7 +121,7 @@ public class ProgressItem : View{
     internal var initialAngle : Int = 0
         set(value) {
             field = value
-            requestInvalidate()
+            smtChanged = true
        }
 
     internal var TAG : String? = null
@@ -137,9 +139,21 @@ public class ProgressItem : View{
 
     internal var orientationChangedObserver : OrientationChangedObserver? = null
 
-    private var activeAnimation : Animator? = null
+    private var rotateAnimation : Animator? = null
         set(value){
-            if (field != null && field!!.isRunning)
+            if (field != null)
+                field?.cancel()
+            field = value
+        }
+    private var progressAnimation : Animator ? = null
+        set(value){
+            if (field != null)
+                field?.cancel()
+            field = value
+        }
+    private var secondProgressAnimation : Animator? = null
+        set(value){
+            if (field != null)
                 field?.cancel()
             field = value
         }
@@ -275,6 +289,22 @@ public class ProgressItem : View{
         }
     }
 
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        if (rotateAnimation != null){
+            rotateAnimation?.cancel()
+            rotateAnimation = null
+        }
+        if (progressAnimation != null){
+            progressAnimation?.cancel()
+            progressAnimation = null
+        }
+        if (secondProgressAnimation != null){
+            secondProgressAnimation?.cancel()
+            secondProgressAnimation = null
+        }
+    }
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         smtChanged = true
@@ -315,16 +345,27 @@ public class ProgressItem : View{
         canvas.drawColor(0x00000000,PorterDuff.Mode.CLEAR)
 
 
+        val startAngle = applyCorrection(getStartAngle().toFloat())
+
+
         //draw secondaryProgress
+        val secondAngle =  getExtraSecondProcessAngle().toFloat()
         val secondaryPath = Path()
-        secondaryPath.addArc(rectF, applyCorrection(getStartAngle().toFloat()),getExtraSecondProcessAngle().toFloat())
+        if (secondAngle >= 360f || secondAngle <= -360f)
+            secondaryPath.addOval(rectF, Path.Direction.CW)
+        else
+            secondaryPath.addArc(rectF, startAngle, secondAngle)
 
         paint.color = currentSecondaryProgressColor
         canvas.drawPath(secondaryPath,paint)
 
         //draw progress
+        val progressAngle = getExtraProcessAngle().toFloat()
         val progressPath = Path()
-        progressPath.addArc(rectF, applyCorrection(getStartAngle().toFloat()),getExtraProcessAngle().toFloat())
+        if (progressAngle >= 360f || progressAngle <= -360f)
+            progressPath.addOval(rectF, Path.Direction.CW)
+        else
+            progressPath.addArc(rectF, startAngle, progressAngle)
 
         paint.color = currentProgressColor
         canvas.drawPath(progressPath,paint)
@@ -489,6 +530,21 @@ public class ProgressItem : View{
         updateColors()
     }
 
+    override fun onVisibilityChanged(changedView: View, visibility: Int) {
+        super.onVisibilityChanged(changedView, visibility)
+
+        if (visibility != View.VISIBLE){
+            rotateAnimation?.cancel()
+            progressAnimation?.cancel()
+            progressAnimation = null
+            secondProgressAnimation?.cancel()
+            secondProgressAnimation = null
+        }else{
+
+            rotateAnimation?.start()
+        }
+    }
+
     private fun initPaint(){
         paint = Paint()
         paint.strokeJoin = Paint.Join.ROUND
@@ -532,11 +588,7 @@ public class ProgressItem : View{
     }
 
     private fun getStartAngle(): Int{
-        if (orientation == Orientation.RIGHT)
-            return initialAngle
-        else{
-            return - initialAngle
-        }
+        return initialAngle
     }
 
     private fun getExtraProcessAngle(): Int{
@@ -556,8 +608,27 @@ public class ProgressItem : View{
 
     private fun limitProgress(progress: Int) = Math.max(min,Math.min(max,progress))
 
-    private fun calculateAngle(progress: Int) = ((progress.toDouble()/(max - min))*360).toInt()
+    private fun calculateAngle(progress: Int) =
+            if (max == min ) 360
+            else  ((progress.toDouble()/(max - min))*360).toInt()
 
+
+    internal fun cancelRotateAnimation(){
+        if (rotateAnimation != null && rotateAnimation!!.isRunning){
+            rotateAnimation!!.doOnCancel {
+                initialAngle = 0
+                invalidate()
+            }
+            rotateAnimation!!.cancel()
+        }
+        rotateAnimation = null
+    }
+
+    internal fun runRotateAnimation(duration : Long, parentWidth : Int){
+        rotateAnimation = getRotatedAnimator( orientation == Orientation.RIGHT, this)
+        rotateAnimation!!.duration = ringDuration(parentWidth,width, duration)
+        rotateAnimation!!.start()
+    }
 
     fun setProgressColor(@ColorInt color : Int){
         progressColor = ColorStateList.valueOf(color)
@@ -591,13 +662,13 @@ public class ProgressItem : View{
     fun setProgress(progress : Int, animate : Boolean){
         this.progress = limitProgress(progress)
         if (!animate){
-            activeAnimation = null
+            progressAnimation = null
             currentProcessAngle = calculateAngle(this.progress)
             requestInvalidate()
         }else{
             val animator = getValueAnimator(this,ProgressItem::currentProcessAngle,currentProcessAngle,calculateAngle(this.progress))
-            activeAnimation = animator
-            activeAnimation?.start()
+            progressAnimation = animator
+            progressAnimation?.start()
         }
     }
 
@@ -609,13 +680,13 @@ public class ProgressItem : View{
     fun setSecondaryProgress(progress : Int, animate : Boolean){
         this.secondaryProgress = limitProgress(progress)
         if (!animate){
-            activeAnimation = null
+            secondProgressAnimation = null
             currentSecondaryProgressAngle = calculateAngle(secondaryProgress)
             requestInvalidate()
         }else{
             val animator = getValueAnimator(this,ProgressItem::currentSecondaryProgressAngle,currentSecondaryProgressAngle,calculateAngle(secondaryProgress))
-            activeAnimation = animator
-            activeAnimation?.start()
+            secondProgressAnimation = animator
+            secondProgressAnimation?.start()
         }
     }
     fun getSecondaryProgress() = secondaryProgress

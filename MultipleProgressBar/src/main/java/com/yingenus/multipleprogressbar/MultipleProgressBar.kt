@@ -1,6 +1,9 @@
 package com.yingenus.multipleprogressbar
 
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.ImageFormat
+import android.os.Build
 import kotlin.ranges.*
 import android.os.Bundle
 import android.os.Parcelable
@@ -50,7 +53,6 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
 
     private val progressItems = mutableListOf<ProgressItem>()
 
-
     constructor(context : Context): super(context){
         init(null)
     }
@@ -90,6 +92,10 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
         view.animation = animation
     }
 
+    override fun setVisibility(visibility: Int) {
+        super.setVisibility(visibility)
+    }
+
     override fun onFinishInflate() {
         super.onFinishInflate()
         findItems()
@@ -106,20 +112,6 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
         }
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        updateAnimations()
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-
-        val childCount = super.getChildCount()
-        for (child in 0 until childCount){
-            super.getChildAt(child).clearAnimation()
-
-        }
-    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -179,6 +171,7 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         layoutChildren(left,top,right,bottom)
+        updateAnimations()
     }
 
     private fun layoutChildren(leftL: Int, topL: Int, rightL: Int, bottomL: Int){
@@ -242,27 +235,24 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
     }
 
     private fun updateAnimations(){
-        val childCount = super.getChildCount()
+        val shouldUpdate : Boolean = width > 0
+
+        if (shouldUpdate){
+            val childCount = super.getChildCount()
             var firstChildWidth = -1
             for (child in 0 until childCount){
                 if (super.getChildAt(child) is ProgressItem){
                     val pri = super.getChildAt(child) as ProgressItem
                     if (firstChildWidth == -1) firstChildWidth = pri.width
                     if (animate){
-                        pri.clearAnimation()
-                        val animation = getRotatedAnimation(animationDuration.toLong(),
-                                pri.orientation == ProgressItem.Orientation.RIGHT)
-                        if (firstChildWidth>0)
-                            animation.refDiameter = firstChildWidth
-                        pri.animation = animation
-
+                        pri.runRotateAnimation(animationDuration.toLong(), firstChildWidth)
                     }else{
-                        pri.clearAnimation()
+                        pri.cancelRotateAnimation()
                     }
                 }
 
             }
-
+        }
     }
 
     fun getProgressItemById(id : Int): ProgressItem?{
