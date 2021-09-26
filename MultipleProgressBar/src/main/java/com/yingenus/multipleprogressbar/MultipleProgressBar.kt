@@ -108,14 +108,6 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
         }
     }
 
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-
-        val childCount = super.getChildCount()
-        for (child in 0 until childCount){
-            super.getChildAt(child).clearAnimation()
-        }
-    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -251,7 +243,7 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
                     if (animate){
                         pri.runRotateAnimation(animationDuration.toLong(), firstChildWidth)
                     }else{
-                        pri.clearAnimation()
+                        pri.cancelRotateAnimation()
                     }
                 }
 

@@ -17,6 +17,7 @@ import android.view.animation.RotateAnimation
 import androidx.annotation.ColorInt
 import androidx.annotation.StyleableRes
 import java.lang.ref.WeakReference
+import kotlin.math.abs
 import kotlin.reflect.KMutableProperty1
 
 internal const val correction = 270
@@ -34,7 +35,7 @@ internal fun applyCorrection( angle : Float): Float{
     return if (corrected >= 0){
         corrected.rem(360)
     }else{
-        360 - corrected.rem(360)
+        360 - abs(corrected).rem(360)
     }
 }
 

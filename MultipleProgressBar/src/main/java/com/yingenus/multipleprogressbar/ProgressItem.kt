@@ -1,7 +1,6 @@
 package com.yingenus.multipleprogressbar
 
 import android.animation.Animator
-import android.animation.AnimatorSet
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.*
@@ -10,9 +9,10 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.View
-import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.core.animation.doOnCancel
+import androidx.core.animation.doOnEnd
 
 
 public class ProgressItem : View{
@@ -260,17 +260,27 @@ public class ProgressItem : View{
 
         canvas.drawColor(0x00000000,PorterDuff.Mode.CLEAR)
 
+        val startAngle = applyCorrection(getStartAngle().toFloat())
+
+
         //draw secondaryProgress
+        val secondAngle =  getExtraSecondProcessAngle().toFloat()
         val secondaryPath = Path()
-        secondaryPath.addArc(rectF, applyCorrection(getStartAngle().toFloat()),getExtraSecondProcessAngle().toFloat())
+        if (secondAngle >= 360f || secondAngle <= -360f)
+            secondaryPath.addOval(rectF, Path.Direction.CW)
+        else
+            secondaryPath.addArc(rectF, startAngle, secondAngle)
 
         paint.color = currentSecondaryProgressColor
         canvas.drawPath(secondaryPath,paint)
 
         //draw progress
-
+        val progressAngle = getExtraProcessAngle().toFloat()
         val progressPath = Path()
-        progressPath.addArc(rectF, applyCorrection(getStartAngle().toFloat()),getExtraProcessAngle().toFloat())
+        if (progressAngle >= 360f || progressAngle <= -360f)
+            progressPath.addOval(rectF, Path.Direction.CW)
+        else
+            progressPath.addArc(rectF, startAngle, progressAngle)
 
         paint.color = currentProgressColor
         canvas.drawPath(progressPath,paint)
@@ -281,6 +291,20 @@ public class ProgressItem : View{
     override fun drawableStateChanged() {
         super.drawableStateChanged()
         updateColors()
+    }
+
+    override fun setVisibility(visibility: Int) {
+        super.setVisibility(visibility)
+
+        if (visibility != View.VISIBLE){
+            rotateAnimation?.cancel()
+            progressAnimation?.cancel()
+            progressAnimation = null
+            secondProgressAnimation?.cancel()
+            secondProgressAnimation = null
+        }else{
+            rotateAnimation?.start()
+        }
     }
 
     private fun initPaint(){
@@ -329,7 +353,18 @@ public class ProgressItem : View{
 
     private fun limitProgress(progress: Int) = Math.max(min,Math.min(max,progress))
 
-    private fun calculateAngle(progress: Int) = ((progress.toDouble()/(max - min))*360).toInt()
+    private fun calculateAngle(progress: Int) =
+            if (max == min ) 360
+            else  ((progress.toDouble()/(max - min))*360).toInt()
+
+
+    internal fun cancelRotateAnimation(){
+        if (rotateAnimation != null && rotateAnimation!!.isRunning){
+            rotateAnimation!!.doOnCancel { initialAngle = 0 }
+            rotateAnimation!!.cancel()
+        }
+        rotateAnimation = null
+    }
 
     internal fun runRotateAnimation(duration : Long, parentWidth : Int){
         rotateAnimation = getRotatedAnimator( orientation == Orientation.RIGHT, this)
