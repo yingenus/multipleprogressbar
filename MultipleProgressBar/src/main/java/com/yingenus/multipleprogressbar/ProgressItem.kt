@@ -293,8 +293,8 @@ public class ProgressItem : View{
         updateColors()
     }
 
-    override fun setVisibility(visibility: Int) {
-        super.setVisibility(visibility)
+    override fun onVisibilityChanged(changedView: View, visibility: Int) {
+        super.onVisibilityChanged(changedView, visibility)
 
         if (visibility != View.VISIBLE){
             rotateAnimation?.cancel()
@@ -303,6 +303,7 @@ public class ProgressItem : View{
             secondProgressAnimation?.cancel()
             secondProgressAnimation = null
         }else{
+
             rotateAnimation?.start()
         }
     }
@@ -360,7 +361,10 @@ public class ProgressItem : View{
 
     internal fun cancelRotateAnimation(){
         if (rotateAnimation != null && rotateAnimation!!.isRunning){
-            rotateAnimation!!.doOnCancel { initialAngle = 0 }
+            rotateAnimation!!.doOnCancel {
+                initialAngle = 0
+                invalidate()
+            }
             rotateAnimation!!.cancel()
         }
         rotateAnimation = null

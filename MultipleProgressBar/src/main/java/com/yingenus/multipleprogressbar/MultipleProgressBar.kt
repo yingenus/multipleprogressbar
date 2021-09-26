@@ -92,6 +92,10 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
         view.animation = animation
     }
 
+    override fun setVisibility(visibility: Int) {
+        super.setVisibility(visibility)
+    }
+
     override fun onFinishInflate() {
         super.onFinishInflate()
         findItems()
