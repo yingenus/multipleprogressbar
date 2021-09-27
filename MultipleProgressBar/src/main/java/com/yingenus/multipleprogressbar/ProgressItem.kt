@@ -385,7 +385,7 @@ public class ProgressItem : View{
 
     private fun drawLabelText(canvas: Canvas){
         val start = getStartAngle().toFloat()
-        val end = max(getExtraSecondProcessAngle(), getExtraProcessAngle()).toFloat()
+        val end = max(currentSecondaryProgressAngle, currentProcessAngle).toFloat()
 
         val bound : Rect = Rect()
         labelPaint.getTextBounds(labelText, 0, labelText.length, bound)
@@ -416,43 +416,36 @@ public class ProgressItem : View{
         } else {
             labelGravity}
 
-        val startAng : Float
-        val endAng : Float
-        val roundingOffset : Float
-
-        when {
-            requireWight == 0 -> {
-                startAng = 0f
-                endAng = 0f
-                roundingOffset = 0f
-            }
-            gravity == TEXT_GRAVITY_LEFT && leftFree > requireWight -> {
-                startAng = 360 - ((360 * requireWight) / circleLength).toFloat()
-                endAng = 360f
-                roundingOffset = ((360 * strokeWide.toFloat()/2) / circleLength).toFloat()
-            }
-            gravity == TEXT_GRAVITY_RIGHT && rightFree > requireWight -> {
-                startAng = 0f
-                endAng = ((360 * requireWight) / circleLength).toFloat()
-                roundingOffset = 0f
-            }
-            else -> {
-                startAng = 0f
-                endAng = 0f
-                roundingOffset = 0f
-            }
-        }
-
-
-
-        //val halfStroke = strokeWide/2
-        //val stOffset = halfStroke - bound.height()/2
-        //val counterOffset = strokeWide - stOffset
-
         val rect = RectF(counterOffset,counterOffset,width - counterOffset,height - counterOffset)
         val counter = Path()
 
-        counter.addArc(rect, applyCorrection(startAng-roundingOffset), applyCorrection(endAng-roundingOffset))
+        when {
+            requireWight == 0 -> {
+                return
+            }
+            gravity == TEXT_GRAVITY_LEFT && leftFree > requireWight -> {
+                val roundingOffset = ((360 * strokeWide.toFloat()/2) / circleLength).toFloat()
+                val endAng = ((360 * requireWight) / circleLength).toFloat()
+                if( orientation == ORIENTATION_RIGHT){
+                    val endAng =  360 - endAng
+                    counter.addArc(rect, applyCorrection(start-roundingOffset + endAng),  endAng )
+                }else{
+                    counter.addArc(rect, applyCorrection(start + roundingOffset), endAng + roundingOffset)
+                }
+            }
+            gravity == TEXT_GRAVITY_RIGHT && rightFree > requireWight -> {
+                val endAng = ((360 * requireWight) / circleLength).toFloat()
+                if (orientation == ORIENTATION_RIGHT){
+                    counter.addArc(rect, applyCorrection(start), endAng)
+                }else{
+                    val endAng =  360 - endAng
+                    counter.addArc(rect, applyCorrection(start + endAng),  endAng )
+                }
+            }
+            else -> {
+                return
+            }
+        }
 
         labelPaint.color = currentLabelColor
 
@@ -498,7 +491,7 @@ public class ProgressItem : View{
                 endAng = 0
             }
             labelGravity == TEXT_GRAVITY_LEFT && leftFree > requireWight -> {
-                startAng = 360 - ((360 * requireWight) / circleLength) as Int
+                startAng = (360 - ((360 * requireWight) / circleLength) as Int)
                 endAng = 360
             }
             labelGravity == TEXT_GRAVITY_RIGHT && rightFree > requireWight -> {
