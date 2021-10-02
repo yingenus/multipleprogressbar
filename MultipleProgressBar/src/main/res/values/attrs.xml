@@ -23,13 +23,15 @@
             <enum name="percent" value="0"/>
             <enum name="raf" value="1"/>
         </attr>
-        <attr name="progressTextColor" format="color"/>
+        <attr name="mpb_progressTextColor" format="color"/>
         <attr name="mpb_showProgressText" format="boolean"/>
         <attr name="mpb_ProgressTextGravity" format="enum">
             <enum name="left" value="1"/>
             <enum name="right" value="2"/>
             <enum name="adaptive" value="0"/>
         </attr>
+        <attr name="mpb_secondaryProgressTextColor" format="color"/>
+        <attr name="mpb_showSecondaryProgressText" format="boolean"/>
         <attr name="mpb_progress" format="integer" />
         <attr name="mpb_secondaryProgress" format="integer" />
         <attr name="mpb_orientation" format="enum">
