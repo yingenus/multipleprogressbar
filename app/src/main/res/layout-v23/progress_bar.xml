@@ -30,9 +30,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
+        app:mpb_labelText="test"
+        app:mpb_showLabel="true"
         app:mpb_orientation="left"
         app:mpb_progress="40"
         app:mpb_progressColor="@color/color2"
-        app:mpb_secondaryProgress="100"
+        app:mpb_secondaryProgress="50"
         app:mpb_secondaryProgressColor="@color/colorsecond2" />
 </com.yingenus.multipleprogressbar.MultipleProgressBar>
