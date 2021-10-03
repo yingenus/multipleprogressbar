@@ -34,6 +34,10 @@
         app:mpb_showLabel="true"
         app:mpb_orientation="left"
         app:mpb_progress="40"
+        app:mpb_showProgressText="true"
+        app:mpb_secondaryProgressTextColor = "@color/colorsecond2"
+        app:mpb_progressTextColor = "@color/color2"
+        app:mpb_showSecondaryProgressText="true"
         app:mpb_progressColor="@color/color2"
         app:mpb_secondaryProgress="50"
         app:mpb_secondaryProgressColor="@color/colorsecond2" />

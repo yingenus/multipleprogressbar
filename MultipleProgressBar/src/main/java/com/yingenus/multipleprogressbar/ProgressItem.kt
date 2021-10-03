@@ -216,6 +216,17 @@ public class ProgressItem : View{
                 field = value
             }
         }
+    var secondaryProgressTextColor = ColorStateList.valueOf(Color.BLACK)
+        set(value) {
+            if (field != value){
+                field = value
+                updateColors()
+                requestInvalidate()
+            }else{
+                field = value
+            }
+        }
+
     var labelColor = ColorStateList.valueOf(Color.BLACK)
         set(value) {
             if (field != value){
@@ -279,6 +290,9 @@ public class ProgressItem : View{
                 showProgressText = attribute.getBoolean(R.styleable.MultipleProgressBarItem_mpb_showProgressText,false)
                 showSecondaryProgressText = attribute.getBoolean(R.styleable.MultipleProgressBarItem_mpb_showSecondaryProgressText,false)
                 progressTextGravity = attribute.getInteger(R.styleable.MultipleProgressBarItem_mpb_ProgressTextGravity,progressTextGravity)
+
+                progressTextColor = attribute.getStateList(R.styleable.MultipleProgressBarItem_mpb_progressTextColor,progressTextColor)
+                secondaryProgressTextColor = attribute.getStateList(R.styleable.MultipleProgressBarItem_mpb_secondaryProgressTextColor, secondaryProgressTextColor)
 
                 orientation = attribute.getInteger(R.styleable.MultipleProgressBarItem_mpb_orientation, orientation)
             }finally {
@@ -676,12 +690,14 @@ public class ProgressItem : View{
         val newProcessColor = progressColor.getColorForState(drawableState,Color.TRANSPARENT)
         val newSecondaryProgressColor = secondaryProgressColor.getColorForState(drawableState,Color.TRANSPARENT)
         val newProgressTextColor = progressTextColor.getColorForState(drawableState,Color.TRANSPARENT)
+        val newSecondaryProgressTextColor = secondaryProgressTextColor.getColorForState(drawableState,Color.TRANSPARENT)
         val newLabelColor = labelColor.getColorForState(drawableState,Color.TRANSPARENT)
 
         if (newProcessColor != currentProgressColor ||
                 newSecondaryProgressColor != currentSecondaryProgressColor ||
                 newProgressTextColor != currentProgressTextColor ||
-                newLabelColor != currentLabelColor) {
+                newLabelColor != currentLabelColor ||
+                newSecondaryProgressTextColor != currentSecondaryProgressTextColor) {
             smtChanged = true
         }
 
@@ -689,6 +705,7 @@ public class ProgressItem : View{
         currentProgressTextColor = newProgressTextColor
         currentLabelColor = newLabelColor
         currentSecondaryProgressColor = newSecondaryProgressColor
+        currentSecondaryProgressTextColor = newSecondaryProgressTextColor
     }
 
     private fun requestInvalidate(){
@@ -723,9 +740,9 @@ public class ProgressItem : View{
 
     private fun getProgressText(): String{
         return if (progressText == TEXT_PERCENT){
-            "${(if (min == max) "100" else ((progress.toFloat()/(max - min)) * 100).toInt().toString())}%"
+            "${(if (min == max) "100" else ((currentProgress/(max - min)) * 100).toInt().toString())}%"
         }else if (progressText == TEXT_RAF){
-            progress.toString()
+            currentProgress.toString()
         }else{
             throw RuntimeException( "invalid state of progressText")
         }
@@ -733,9 +750,9 @@ public class ProgressItem : View{
 
     private fun getSecondProgressText(): String{
         return if (progressText == TEXT_PERCENT){
-           "${(if (min == max) "100" else ((secondaryProgress.toFloat()/(max - min)) * 100).toInt().toString())}%"
+           "${(if (min == max) "100" else ((currentSecondaryProgress/(max - min)) * 100).toInt().toString())}%"
         }else if (progressText == TEXT_RAF){
-            secondaryProgress.toString()
+            currentSecondaryProgress.toString()
         }else{
             throw RuntimeException( "invalid state of progressText")
         }
