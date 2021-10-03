@@ -89,13 +89,13 @@ internal fun dp2pix(context: Context, dp: Int): Int {
     return context.resources.displayMetrics.density.toInt() * dp
 }
 
-internal fun getValueAnimator(progressItem: ProgressItem, parameter : KMutableProperty1<ProgressItem,Int>,
-                              startValue: Int, endValue: Int): Animator{
+internal fun getValueAnimator(progressItem: ProgressItem, parameter : KMutableProperty1<ProgressItem,Float>,
+                              startValue: Float, endValue: Float): Animator{
 
-    val animation = ValueAnimator.ofInt(startValue,endValue)
+    val animation = ValueAnimator.ofFloat(startValue,endValue)
     animation.duration = animationDuration
     animation.addUpdateListener { listener ->
-        parameter.set(progressItem,listener.animatedValue as Int)
+        parameter.set(progressItem,listener.animatedValue as Float)
         progressItem.invalidate()
     }
 

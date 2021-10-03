@@ -76,12 +76,24 @@ public class ProgressItem : View{
 
     internal var TAG : String? = null
 
-    internal var currentProcessAngle : Int = 0
+    internal var currentProgress : Float = 0f
+        set(value){
+            field = value
+            currentProcessAngle = calculateAngle(value)
+        }
+
+    internal var currentSecondaryProgress : Float = 0f
+        set(value) {
+            field = value
+            currentSecondaryProgressAngle = calculateAngle(value)
+        }
+
+    internal var currentProcessAngle : Float = 0f
         set(value){
             field = value
             smtChanged = true
         }
-    internal var currentSecondaryProgressAngle : Int = 0
+    internal var currentSecondaryProgressAngle : Float = 0f
         set(value){
             field = value
             smtChanged = true
@@ -264,7 +276,7 @@ public class ProgressItem : View{
 
 
         //draw secondaryProgress
-        val secondAngle =  getExtraSecondProcessAngle().toFloat()
+        val secondAngle =  getExtraSecondProcessAngle()
         val secondaryPath = Path()
         if (secondAngle >= 360f || secondAngle <= -360f)
             secondaryPath.addOval(rectF, Path.Direction.CW)
@@ -275,7 +287,7 @@ public class ProgressItem : View{
         canvas.drawPath(secondaryPath,paint)
 
         //draw progress
-        val progressAngle = getExtraProcessAngle().toFloat()
+        val progressAngle = getExtraProcessAngle()
         val progressPath = Path()
         if (progressAngle >= 360f || progressAngle <= -360f)
             progressPath.addOval(rectF, Path.Direction.CW)
@@ -337,14 +349,14 @@ public class ProgressItem : View{
         return initialAngle
     }
 
-    private fun getExtraProcessAngle(): Int{
+    private fun getExtraProcessAngle(): Float{
         if (orientation == Orientation.RIGHT)
             return currentProcessAngle
         else{
             return -currentProcessAngle
         }
     }
-    private fun getExtraSecondProcessAngle(): Int{
+    private fun getExtraSecondProcessAngle(): Float{
         if (orientation == Orientation.RIGHT)
             return currentSecondaryProgressAngle
         else{
@@ -354,9 +366,9 @@ public class ProgressItem : View{
 
     private fun limitProgress(progress: Int) = Math.max(min,Math.min(max,progress))
 
-    private fun calculateAngle(progress: Int) =
-            if (max == min ) 360
-            else  ((progress.toDouble()/(max - min))*360).toInt()
+    private fun calculateAngle(progress: Float) =
+            if (max == min ) 360f
+            else  ((progress)/(max - min))*360
 
 
     internal fun cancelRotateAnimation(){
@@ -409,10 +421,10 @@ public class ProgressItem : View{
         this.progress = limitProgress(progress)
         if (!animate){
             progressAnimation = null
-            currentProcessAngle = calculateAngle(this.progress)
+            currentProgress = progress.toFloat()
             requestInvalidate()
         }else{
-            val animator = getValueAnimator(this,ProgressItem::currentProcessAngle,currentProcessAngle,calculateAngle(this.progress))
+            val animator = getValueAnimator(this,ProgressItem::currentProgress,currentProgress,this.progress.toFloat())
             progressAnimation = animator
             progressAnimation?.start()
         }
@@ -427,10 +439,10 @@ public class ProgressItem : View{
         this.secondaryProgress = limitProgress(progress)
         if (!animate){
             secondProgressAnimation = null
-            currentSecondaryProgressAngle = calculateAngle(secondaryProgress)
+            currentSecondaryProgress = progress.toFloat()
             requestInvalidate()
         }else{
-            val animator = getValueAnimator(this,ProgressItem::currentSecondaryProgressAngle,currentSecondaryProgressAngle,calculateAngle(secondaryProgress))
+            val animator = getValueAnimator(this,ProgressItem::currentSecondaryProgress,currentSecondaryProgress,this.secondaryProgress.toFloat())
             secondProgressAnimation = animator
             secondProgressAnimation?.start()
         }
