@@ -72,36 +72,43 @@ public class ProgressItem : View{
     var labelText = ""
         set(value) {
             field = value
+            textChanged = true
             requestInvalidate()
         }
     var showLabel = false
         set(value) {
             field = value
+            textChanged = true
             requestInvalidate()
         }
     var labelGravity = TEXT_GRAVITY_ADAPTIVE
         set(value) {
             field = max(min(value,2),0)
+            textChanged = true
             requestInvalidate()
         }
     var progressText = TEXT_PERCENT
         set(value) {
             field = max(min(value,1),0)
+            textChanged = true
             requestInvalidate()
         }
     var showProgressText = false
         set(value) {
             field = value
+            textChanged = true
             requestLayout()
         }
     var showSecondaryProgressText = false
         set(value) {
             field = value
+            textChanged = true
             requestLayout()
         }
     var progressTextGravity = TEXT_GRAVITY_ADAPTIVE
         set(value) {
             field = max(min(value,2),0)
+            textChanged = true
             requestInvalidate()
         }
     private var progress: Int = 0
@@ -120,6 +127,7 @@ public class ProgressItem : View{
     internal var strokeWide : Float = 10f
         set(value) {
             field = value
+            sizeChanged = true
             initPaint()
             requestInvalidate()
         }
@@ -134,12 +142,14 @@ public class ProgressItem : View{
     internal var currentProcessAngle : Int = 0
         set(value){
             field = value
-            smtChanged = true
+            crProgressChanged = true
+            //smtChanged = true
         }
     internal var currentSecondaryProgressAngle : Int = 0
         set(value){
             field = value
-            smtChanged = true
+            crProgressChanged = true
+            //smtChanged = true
         }
 
     internal var orientationChangedObserver : OrientationChangedObserver? = null
@@ -169,6 +179,7 @@ public class ProgressItem : View{
             if (field != value){
                 field = value
                 updateColors()
+                requestInvalidate()
             }else{
                 field = value
             }
@@ -178,6 +189,7 @@ public class ProgressItem : View{
             if (field != value){
                 field = value
                 updateColors()
+                requestInvalidate()
             }else{
                 field = value
             }
@@ -187,6 +199,7 @@ public class ProgressItem : View{
             if (field != value){
                 field = value
                 updateColors()
+                requestInvalidate()
             }else{
                 field = value
             }
@@ -196,6 +209,7 @@ public class ProgressItem : View{
             if (field != value){
                 field = value
                 updateColors()
+                requestInvalidate()
             }else{
                 field = value
             }
@@ -316,14 +330,19 @@ public class ProgressItem : View{
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        smtChanged = true
+        sizeChanged = true
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        if (mBitmap == null || smtChanged){
+        if (mBitmap == null || smtChanged || textChanged || crProgressChanged || sizeChanged){
             drawBitmap()
+
+            sizeChanged = false
+            smtChanged = false
+            textChanged = false
+            crProgressChanged = false
         }
 
         canvas!!.drawBitmap(mBitmap!!,0f,0f,null)
@@ -332,14 +351,14 @@ public class ProgressItem : View{
 
     private fun drawBitmap(){
 
-        if (mBitmap == null || smtChanged){
+        if (mBitmap == null || sizeChanged){
             val width = Math.max(1, width)
             val height = Math.max(1,height)
-            try {
-                mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-            }catch (e : Exception){
+            mBitmap?.recycle()
+            mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
-            }
+        }else if(smtChanged){
+            mBitmap!!.eraseColor(Color.TRANSPARENT)
         }
 
         val halfStroke = strokeWide/2
@@ -380,7 +399,7 @@ public class ProgressItem : View{
         canvas.drawPath(progressPath,paint)
 
         if (showLabel || showProgressText || showSecondaryProgressText){
-            TextDrawer().drawTexts(canvas)
+            textDrawer.drawTexts(canvas)
         }
 
         canvas.restore()
@@ -420,8 +439,6 @@ public class ProgressItem : View{
                 val stOffset = halfStroke - defTextBound.height()/2
                 val counterOffset = strokeWide - stOffset
 
-                val diameter = width - counterOffset*2
-
                 val rect_270_90 = RectF(stOffset,stOffset,width - stOffset,height - stOffset)
                 val rect_90_270 = RectF(counterOffset,counterOffset,width - counterOffset,height - counterOffset)
 
@@ -429,9 +446,9 @@ public class ProgressItem : View{
                     val counter = Path()
                     val start = getStartAngle()+position.start
                     val end =   getStartAngle()+position.end
-                    val center = (end - start)/2 + start
+                    val center = applyCorrection((end - start)/2 + start)
 
-                    if (center <= 90 || center > 270){
+                    if (center <= 0 || center > 180){
                         counter.addArc(rect_90_270, applyCorrection(start), position.end - position.start)
                     }else{
                         counter.addArc(rect_270_90, applyCorrection(end), position.start - position.end)
@@ -452,7 +469,6 @@ public class ProgressItem : View{
             }
 
         }
-
 
         private fun calculatePositions(){
             val halfStroke = strokeWide/2
@@ -479,19 +495,24 @@ public class ProgressItem : View{
                             TextPosition.NotShowing
                         }
                         suggestGravity == TEXT_GRAVITY_LEFT && leftFree > requireWight -> {
-                            val roundingOffset = ((360 * (strokeWide.toFloat()/2)) / circleLength).toFloat()
-                            val endAng = ((360 * requireWight) / circleLength).toFloat()
+                            val roundingOffset = ((360 * (strokeWide/2)) / circleLength)
+                            val endAng = ((360 * requireWight) / circleLength)
                             if( orientation == ORIENTATION_RIGHT){
                                 val endAng = - endAng
                                 TextPosition.Position(zeroPosition-roundingOffset + endAng, zeroPosition)
                             }else{
-                                TextPosition.Position(zeroPosition + roundingOffset, zeroPosition + endAng + roundingOffset)
+                                val end = zeroPosition + endAng + roundingOffset
+                                if (end >= 360) TextPosition.NotShowing
+                                else TextPosition.Position(zeroPosition, end)
                             }
                         }
                         suggestGravity == TEXT_GRAVITY_RIGHT && rightFree > requireWight -> {
-                            val endAng = ((360 * requireWight) / circleLength).toFloat()
+                            val roundingOffset = if(zeroPosition != 0f)((360 * (strokeWide/2)) / circleLength) else 0f
+                            val endAng = ((360 * requireWight) / circleLength)
                             if (orientation == ORIENTATION_RIGHT){
-                                TextPosition.Position(zeroPosition, zeroPosition + endAng)
+                                val end = zeroPosition + endAng + roundingOffset
+                                if (end >= 360) TextPosition.NotShowing
+                                else TextPosition.Position(zeroPosition+roundingOffset, end)
                             }else{
                                 val endAng = - endAng
                                 TextPosition.Position(zeroPosition + endAng, zeroPosition)
@@ -520,7 +541,7 @@ public class ProgressItem : View{
                     rightFree = circleLength * ( max(currentProcessAngle,currentSecondaryProgressAngle).toFloat() / 360),
                     gravity = labelGravity,
                     showLabel = showLabel,
-                    zeroPosition = 0f).mapIndexed { index, textPosition -> ShownText.Label(textPosition, index == 0) })
+                    zeroPosition = 0f).mapIndexed { index, textPosition -> ShownText.Label(textPosition, (index == 0 && textPosition != TextPosition.NotShowing)) })
             positions.addAll(suggestPositions(
                     text = getProgressText(),
                     leftFree = circleLength * ((currentProcessAngle.toFloat()) / 360),
@@ -528,7 +549,7 @@ public class ProgressItem : View{
                     gravity = progressTextGravity,
                     showLabel = showProgressText,
                     zeroPosition = currentProcessAngle.toFloat())
-                    .mapIndexed { index, textPosition -> ShownText.Progress(textPosition, index == 0) })
+                    .mapIndexed { index, textPosition -> ShownText.Progress(textPosition, (index == 0 && textPosition != TextPosition.NotShowing)) })
             positions.addAll(suggestPositions(
                     text = getSecondProgressText(),
                     leftFree = if(currentSecondaryProgressAngle > currentProcessAngle)
@@ -542,7 +563,7 @@ public class ProgressItem : View{
                     gravity = progressTextGravity,
                     showLabel = showSecondaryProgressText,
                     zeroPosition = currentSecondaryProgressAngle.toFloat())
-                    .mapIndexed { index, textPosition -> ShownText.SProgress(textPosition, index == 0) })
+                    .mapIndexed { index, textPosition -> ShownText.SProgress(textPosition, (index == 0 && textPosition != TextPosition.NotShowing)) })
 
             val composed = composeText(positions)
 
@@ -556,14 +577,14 @@ public class ProgressItem : View{
             val progress = composed.filterIsInstance<ShownText.Progress>()
             progressPosition = if (progress.isNotEmpty()){
                 val prefer = progress.find { it.prefer }
-                prefer?.position ?: labels[0].position
+                prefer?.position ?: progress[0].position
             }else{
                 TextPosition.NotShowing
             }
             val sProgress = composed.filterIsInstance<ShownText.SProgress>()
             sProgressPosition = if (sProgress.isNotEmpty()){
                 val prefer = sProgress.find { it.prefer }
-                prefer?.position ?: labels[0].position
+                prefer?.position ?: sProgress[0].position
             }else{
                 TextPosition.NotShowing
             }
@@ -584,9 +605,12 @@ public class ProgressItem : View{
                                     val variant1 = composeText(items.toMutableList().apply { remove(item) })
                                     val variant2 = composeText(items.toMutableList().apply { remove(items[i]) })
 
-                                    return if (variant1.size > variant2.size){
+                                    val size1 = variant1.groupBy { it::class.java.name }.keys.size
+                                    val size2 = variant2.groupBy { it::class.java.name }.keys.size
+
+                                    return if (size1 > size2){
                                         variant1
-                                    } else if (variant2.size > variant1.size){
+                                    } else if (size2 > size1){
                                         variant2
                                     }else{
                                         val pref1 = variant1.fold(0){ass, item -> if (item.prefer) ass + 1 else ass}
@@ -601,72 +625,6 @@ public class ProgressItem : View{
             return items
         }
     }
-
-    private fun drawProgressText(canvas: Canvas){
-        val start = getStartAngle()
-        val end = getExtraProcessAngle()
-
-        val diameter = width - strokeWide
-        val circleLength = diameter * Math.PI
-
-        val leftFree = circleLength * (abs(end - start) / 360)
-        val rightFree = circleLength * (abs(start - end) / 360)
-
-        val tempText = "100"
-
-        val bound : Rect = Rect()
-        textPaint.getTextBounds(tempText, 0, tempText.length, bound)
-
-        val requireWight = bound.width()
-
-        val gravity = if (labelGravity == TEXT_GRAVITY_ADAPTIVE) {
-            when {
-                rightFree > requireWight -> {
-                    TEXT_GRAVITY_RIGHT
-                }
-                leftFree > requireWight -> {
-                    TEXT_GRAVITY_LEFT
-                }
-                else -> labelGravity
-            }
-        } else {
-            labelGravity}
-
-        val startAng : Int
-        val endAng : Int
-
-        when {
-            requireWight == 0 -> {
-                startAng = 0
-                endAng = 0
-            }
-            labelGravity == TEXT_GRAVITY_LEFT && leftFree > requireWight -> {
-                startAng = (360 - ((360 * requireWight) / circleLength) as Int)
-                endAng = 360
-            }
-            labelGravity == TEXT_GRAVITY_RIGHT && rightFree > requireWight -> {
-                startAng = 0
-                endAng = ((360 * requireWight) / circleLength) as Int
-            }
-            else -> {
-                startAng = 0
-                endAng = 0
-            }
-        }
-
-
-        val halfStroke = strokeWide/2
-        val rect = RectF(0f + halfStroke,0f + halfStroke,width - halfStroke,height - halfStroke)
-        val counter = Path()
-
-        counter.addArc(rect, startAng.toFloat(), endAng.toFloat())
-
-        textPaint.color = currentProgressTextColor
-
-        canvas.drawTextOnPath(tempText.toCharArray(), 0, tempText.length, counter, 0f,0f,textPaint)
-    }
-
-
 
     override fun drawableStateChanged() {
         super.drawableStateChanged()
@@ -754,7 +712,7 @@ public class ProgressItem : View{
 
     private fun getProgressText(): String{
         return if (progressText == TEXT_PERCENT){
-            if (min == max) "100" else ((progress.toFloat()/(max - min)) * 100).toInt().toString()
+            "${(if (min == max) "100" else ((progress.toFloat()/(max - min)) * 100).toInt().toString())}%"
         }else if (progressText == TEXT_RAF){
             progress.toString()
         }else{
@@ -764,7 +722,7 @@ public class ProgressItem : View{
 
     private fun getSecondProgressText(): String{
         return if (progressText == TEXT_PERCENT){
-            if (min == max) "100" else ((secondaryProgress.toFloat()/(max - min)) * 100).toInt().toString()
+           "${(if (min == max) "100" else ((secondaryProgress.toFloat()/(max - min)) * 100).toInt().toString())}%"
         }else if (progressText == TEXT_RAF){
             secondaryProgress.toString()
         }else{
@@ -818,6 +776,7 @@ public class ProgressItem : View{
     fun setProgress(progress : Int){
         setProgress(progress,true)
     }
+
     fun setProgress(progress : Int, animate : Boolean){
         this.progress = limitProgress(progress)
         if (!animate){
