@@ -14,8 +14,8 @@
         <attr name="mpb_labelText" format="string"/>
         <attr name="mpb_showLabel" format="boolean"/>
         <attr name="mpb_labelGravity" format="enum">
-            <enum name="left" value="1"/>
-            <enum name="right" value="2"/>
+            <enum name="IN" value="2"/>
+            <enum name="OUT" value="1"/>
             <enum name="adaptive" value="0"/>
         </attr>
         <attr name="mpb_labelColor" format="color"/>
@@ -25,9 +25,9 @@
         </attr>
         <attr name="mpb_progressTextColor" format="color"/>
         <attr name="mpb_showProgressText" format="boolean"/>
-        <attr name="mpb_ProgressTextGravity" format="enum">
-            <enum name="left" value="1"/>
-            <enum name="right" value="2"/>
+        <attr name="mpb_progressTextGravity" format="enum">
+            <enum name="IN" value="1"/>
+            <enum name="OUT" value="2"/>
             <enum name="adaptive" value="0"/>
         </attr>
         <attr name="mpb_secondaryProgressTextColor" format="color"/>

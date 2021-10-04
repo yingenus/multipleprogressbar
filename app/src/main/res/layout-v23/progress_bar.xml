@@ -20,24 +20,26 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:mpb_orientation="right"
+        app:mpb_labelText="test"
         app:mpb_progress="25"
         app:mpb_progressColor="@color/color1"
-        app:mpb_secondaryProgress="100"
-        app:mpb_secondaryProgressColor="@color/colorsecond1" />
+        app:mpb_secondaryProgress="80"
+        app:mpb_secondaryProgressColor="@color/colorsecond1"
+        app:mpb_secondaryProgressTextColor = "@color/textcolor"
+        app:mpb_progressTextColor = "@color/textcolor"
+        app:mpb_labelColor="@color/textcolor"
+        />
 
     <com.yingenus.multipleprogressbar.ProgressItem
         android:id="@+id/item2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         app:mpb_labelText="test"
-        app:mpb_showLabel="true"
         app:mpb_orientation="left"
         app:mpb_progress="40"
-        app:mpb_showProgressText="true"
-        app:mpb_secondaryProgressTextColor = "@color/colorsecond2"
-        app:mpb_progressTextColor = "@color/color2"
-        app:mpb_showSecondaryProgressText="true"
+        app:mpb_secondaryProgressTextColor = "@color/textcolor"
+        app:mpb_progressTextColor = "@color/textcolor"
+        app:mpb_labelColor="@color/textcolor"
         app:mpb_progressColor="@color/color2"
         app:mpb_secondaryProgress="50"
         app:mpb_secondaryProgressColor="@color/colorsecond2" />

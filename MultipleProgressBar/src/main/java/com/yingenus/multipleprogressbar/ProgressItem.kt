@@ -12,34 +12,25 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import androidx.core.animation.doOnCancel
 import java.lang.RuntimeException
 
 
-public class ProgressItem : View{
+class ProgressItem : View{
 
     companion object{
         const val ORIENTATION_RIGHT = 0
         const val ORIENTATION_LEFT = 1
-        const val TEXT_GRAVITY_RIGHT = 2
-        const val TEXT_GRAVITY_LEFT = 1
+        const val LABEL_GRAVITY_IN = 2
+        const val LABEL_GRAVITY_OUT = 1
+        const val LABEL_GRAVITY_ADAPTIVE = 0
+        const val TEXT_GRAVITY_OUT = 2
+        const val TEXT_GRAVITY_IN = 1
         const val TEXT_GRAVITY_ADAPTIVE = 0
         const val TEXT_PERCENT = 0
         const val TEXT_RAF = 1
-    }
-
-    object Orientation{
-        const val RIGHT = 0
-        const val LEFT = 1
-    }
-
-    object TextGravity{
-        const val RIGHT = 2
-        const val LEFT = 1
-        const val ADAPTIVE = 0
     }
 
     private object SavedParams{
@@ -113,12 +104,12 @@ public class ProgressItem : View{
         }
     private var progress: Int = 0
     private var secondaryProgress : Int = 0
-    var orientation : Int = Orientation.RIGHT
+    var orientation : Int = ORIENTATION_RIGHT
         set(value) {
             field = if (value <=0)
-                Orientation.RIGHT
+                ORIENTATION_RIGHT
             else
-                Orientation.LEFT
+                ORIENTATION_LEFT
 
             orientationChangedObserver?.onChanged(field,this)
 
@@ -139,13 +130,13 @@ public class ProgressItem : View{
 
     internal var TAG : String? = null
 
-    internal var currentProgress : Float = 0f
+    private var currentProgress : Float = 0f
         set(value){
             field = value
             currentProcessAngle = calculateAngle(value)
         }
 
-    internal var currentSecondaryProgress : Float = 0f
+    private var currentSecondaryProgress : Float = 0f
         set(value) {
             field = value
             currentSecondaryProgressAngle = calculateAngle(value)
@@ -155,13 +146,11 @@ public class ProgressItem : View{
         set(value){
             field = value
             crProgressChanged = true
-            //smtChanged = true
         }
     internal var currentSecondaryProgressAngle : Float = 0f
         set(value){
             field = value
             crProgressChanged = true
-            //smtChanged = true
         }
 
     internal var orientationChangedObserver : OrientationChangedObserver? = null
@@ -289,7 +278,7 @@ public class ProgressItem : View{
                 progressText = attribute.getInteger(R.styleable.MultipleProgressBarItem_mpb_progressText,progressText)
                 showProgressText = attribute.getBoolean(R.styleable.MultipleProgressBarItem_mpb_showProgressText,false)
                 showSecondaryProgressText = attribute.getBoolean(R.styleable.MultipleProgressBarItem_mpb_showSecondaryProgressText,false)
-                progressTextGravity = attribute.getInteger(R.styleable.MultipleProgressBarItem_mpb_ProgressTextGravity,progressTextGravity)
+                progressTextGravity = attribute.getInteger(R.styleable.MultipleProgressBarItem_mpb_progressTextGravity,progressTextGravity)
 
                 progressTextColor = attribute.getStateList(R.styleable.MultipleProgressBarItem_mpb_progressTextColor,progressTextColor)
                 secondaryProgressTextColor = attribute.getStateList(R.styleable.MultipleProgressBarItem_mpb_secondaryProgressTextColor, secondaryProgressTextColor)
@@ -308,12 +297,12 @@ public class ProgressItem : View{
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        val width = View.MeasureSpec.getSize(widthMeasureSpec)
-        val height = View.MeasureSpec.getSize(heightMeasureSpec)
+        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val height = MeasureSpec.getSize(heightMeasureSpec)
         setMeasuredDimension(width,height)
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         val superPars = super.onSaveInstanceState()
         val bundle = Bundle()
         bundle.putParcelable(SavedParams.superSP,superPars)
@@ -378,8 +367,8 @@ public class ProgressItem : View{
     private fun drawBitmap(){
 
         if (mBitmap == null || sizeChanged){
-            val width = Math.max(1, width)
-            val height = Math.max(1,height)
+            val width = max(1, width)
+            val height = max(1,height)
             mBitmap?.recycle()
             mBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
@@ -459,7 +448,7 @@ public class ProgressItem : View{
                     sProgressPosition != TextPosition.NotShowing){
 
                 val halfStroke = strokeWide/2
-                val defTextBound : Rect = Rect()
+                val defTextBound = Rect()
                 textPaint.getTextBounds("text", 0, labelText.length, defTextBound)
 
                 val stOffset = halfStroke - defTextBound.height()/2
@@ -498,7 +487,7 @@ public class ProgressItem : View{
 
         private fun calculatePositions(){
             val halfStroke = strokeWide/2
-            val defTextBound : Rect = Rect()
+            val defTextBound = Rect()
             textPaint.getTextBounds("text", 0, labelText.length, defTextBound)
 
             val stOffset = halfStroke - defTextBound.height()/2
@@ -511,7 +500,7 @@ public class ProgressItem : View{
             fun suggestPositions( text : String, leftFree : Float, rightFree : Float, gravity : Int, showLabel : Boolean, zeroPosition : Float) : List<TextPosition>{
                 if (showLabel){
 
-                    val bound : Rect = Rect()
+                    val bound = Rect()
                     textPaint.getTextBounds(text, 0, text.length, bound)
 
                     val requireWight = bound.width()
@@ -520,28 +509,30 @@ public class ProgressItem : View{
                         requireWight == 0 -> {
                             TextPosition.NotShowing
                         }
-                        suggestGravity == TEXT_GRAVITY_LEFT && leftFree > requireWight -> {
+                        suggestGravity == TEXT_GRAVITY_IN && leftFree > requireWight -> {
                             val roundingOffset = ((360 * (strokeWide/2)) / circleLength)
                             val endAng = ((360 * requireWight) / circleLength)
                             if( orientation == ORIENTATION_RIGHT){
-                                val endAng = - endAng
-                                TextPosition.Position(zeroPosition-roundingOffset + endAng, zeroPosition)
+                                val start = zeroPosition-roundingOffset - endAng
+                                if (start <= 0 ) TextPosition.Position(360 + start , 360 + zeroPosition)
+                                else TextPosition.Position(start , zeroPosition)
                             }else{
-                                val end = zeroPosition + endAng + roundingOffset
-                                if (end >= 360) TextPosition.NotShowing
-                                else TextPosition.Position(zeroPosition, end)
+                                val end = zeroPosition - endAng - roundingOffset
+                                if(end < 0) TextPosition.Position(zeroPosition+ roundingOffset, - end )
+                                else if (end >= 360) TextPosition.NotShowing
+                                else TextPosition.Position(360 - zeroPosition, 360 - end)
                             }
                         }
-                        suggestGravity == TEXT_GRAVITY_RIGHT && rightFree > requireWight -> {
+                        suggestGravity == TEXT_GRAVITY_OUT && rightFree > requireWight -> {
                             val roundingOffset = if(zeroPosition != 0f)((360 * (strokeWide/2)) / circleLength) else 0f
                             val endAng = ((360 * requireWight) / circleLength)
+
                             if (orientation == ORIENTATION_RIGHT){
                                 val end = zeroPosition + endAng + roundingOffset
                                 if (end >= 360) TextPosition.NotShowing
                                 else TextPosition.Position(zeroPosition+roundingOffset, end)
                             }else{
-                                val endAng = - endAng
-                                TextPosition.Position(zeroPosition + endAng, zeroPosition)
+                                TextPosition.Position(360 - zeroPosition - endAng - roundingOffset, 360 - zeroPosition - roundingOffset)
                             }
                         }
                         else -> {
@@ -550,7 +541,7 @@ public class ProgressItem : View{
                     }
 
                     return if (gravity == TEXT_GRAVITY_ADAPTIVE) {
-                        listOf(calculate(TEXT_GRAVITY_RIGHT),calculate(TEXT_GRAVITY_LEFT))
+                        listOf(calculate(TEXT_GRAVITY_OUT),calculate(TEXT_GRAVITY_IN))
                     } else {
                         listOf(calculate(gravity))
                     }
@@ -563,32 +554,34 @@ public class ProgressItem : View{
             val positions = mutableListOf<ShownText>()
             positions.addAll(suggestPositions(
                     text = labelText,
-                    leftFree = circleLength * ((360 - (max(currentProcessAngle,currentSecondaryProgressAngle).toFloat())) / 360),
-                    rightFree = circleLength * ( max(currentProcessAngle,currentSecondaryProgressAngle).toFloat() / 360),
+                    leftFree = circleLength * ((360 - (max(currentProcessAngle,currentSecondaryProgressAngle))) / 360),
+                    rightFree = circleLength * ( max(currentProcessAngle,currentSecondaryProgressAngle) / 360),
                     gravity = labelGravity,
                     showLabel = showLabel,
-                    zeroPosition = 0f).mapIndexed { index, textPosition -> ShownText.Label(textPosition, (index == 0 && textPosition != TextPosition.NotShowing)) })
+                    zeroPosition = 0f).mapIndexed { index, textPosition -> ShownText.Label(textPosition,
+                    if (orientation == ORIENTATION_RIGHT) index == 0 && textPosition != TextPosition.NotShowing
+                    else index == 1 && textPosition != TextPosition.NotShowing)})
             positions.addAll(suggestPositions(
                     text = getProgressText(),
-                    leftFree = circleLength * ((currentProcessAngle.toFloat()) / 360),
-                    rightFree = circleLength * ((360 - currentProcessAngle.toFloat()) / 360),
+                    leftFree = circleLength * ((currentProcessAngle) / 360),
+                    rightFree = circleLength * ((360 - currentProcessAngle) / 360),
                     gravity = progressTextGravity,
                     showLabel = showProgressText,
-                    zeroPosition = currentProcessAngle.toFloat())
+                    zeroPosition = currentProcessAngle)
                     .mapIndexed { index, textPosition -> ShownText.Progress(textPosition, (index == 0 && textPosition != TextPosition.NotShowing)) })
             positions.addAll(suggestPositions(
                     text = getSecondProgressText(),
                     leftFree = if(currentSecondaryProgressAngle > currentProcessAngle)
-                        circleLength * ((currentSecondaryProgressAngle - currentProcessAngle).toFloat() / 360)
+                        circleLength * ((currentSecondaryProgressAngle - currentProcessAngle) / 360)
                     else
                         0f,
                     rightFree = if(currentSecondaryProgressAngle > currentProcessAngle)
-                        circleLength * ((360 - currentSecondaryProgressAngle.toFloat()) / 360)
+                        circleLength * ((360 - currentSecondaryProgressAngle) / 360)
                     else
                         0f,
                     gravity = progressTextGravity,
                     showLabel = showSecondaryProgressText,
-                    zeroPosition = currentSecondaryProgressAngle.toFloat())
+                    zeroPosition = currentSecondaryProgressAngle)
                     .mapIndexed { index, textPosition -> ShownText.SProgress(textPosition, (index == 0 && textPosition != TextPosition.NotShowing)) })
 
             val composed = composeText(positions)
@@ -639,8 +632,8 @@ public class ProgressItem : View{
                                     } else if (size2 > size1){
                                         variant2
                                     }else{
-                                        val pref1 = variant1.fold(0){ass, item -> if (item.prefer) ass + 1 else ass}
-                                        val pref2 = variant2.fold(0){ass, item -> if (item.prefer) ass + 1 else ass}
+                                        val pref1 = variant1.fold(0){ass, item1 -> if (item1.prefer) ass + 1 else ass}
+                                        val pref2 = variant2.fold(0){ass, item2 -> if (item2.prefer) ass + 1 else ass}
                                         if (pref1 >= pref2) variant1
                                         else variant2
                             }
@@ -660,7 +653,7 @@ public class ProgressItem : View{
     override fun onVisibilityChanged(changedView: View, visibility: Int) {
         super.onVisibilityChanged(changedView, visibility)
 
-        if (visibility != View.VISIBLE){
+        if (visibility != VISIBLE){
             rotateAnimation?.cancel()
             progressAnimation?.cancel()
             progressAnimation = null
@@ -718,17 +711,17 @@ public class ProgressItem : View{
     }
 
     private fun getExtraProcessAngle(): Float{
-        if (orientation == Orientation.RIGHT)
-            return currentProcessAngle
+        return if (orientation == ORIENTATION_RIGHT)
+            currentProcessAngle
         else{
-            return -currentProcessAngle
+            -currentProcessAngle
         }
     }
     private fun getExtraSecondProcessAngle(): Float{
-        if (orientation == Orientation.RIGHT)
-            return currentSecondaryProgressAngle
+        return if (orientation == ORIENTATION_RIGHT)
+            currentSecondaryProgressAngle
         else{
-            return -currentSecondaryProgressAngle
+            -currentSecondaryProgressAngle
         }
     }
 
@@ -770,9 +763,14 @@ public class ProgressItem : View{
     }
 
     internal fun runRotateAnimation(duration : Long, parentWidth : Int){
-        rotateAnimation = getRotatedAnimator( orientation == Orientation.RIGHT, this)
-        rotateAnimation!!.duration = ringDuration(parentWidth,width, duration)
-        rotateAnimation!!.start()
+        if(rotateAnimation != null && rotateAnimation!!.isRunning){
+            rotateAnimation?.duration = ringDuration(parentWidth,width, duration)
+        }
+        else{
+            rotateAnimation = getRotatedAnimator( orientation == ORIENTATION_RIGHT, this)
+            rotateAnimation!!.duration = ringDuration(parentWidth,width, duration)
+            rotateAnimation!!.start()
+        }
     }
 
     fun setProgressColor(@ColorInt color : Int){
@@ -798,6 +796,45 @@ public class ProgressItem : View{
         }else{
             val color = context.resources.getColor(id)
             setSecondaryProgressColor(color)
+        }
+    }
+
+    fun setProgressTextColor(@ColorInt color : Int){
+        progressTextColor = ColorStateList.valueOf(color)
+    }
+
+    fun setProgressTextColorRes(@ColorRes id : Int){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            progressTextColor = context.resources.getColorStateList(id,context.theme)
+        }else{
+            val color = context.resources.getColor(id)
+            setProgressTextColor(color)
+        }
+    }
+
+    fun setSecondaryProgressTextColor(@ColorInt color : Int){
+        secondaryProgressTextColor = ColorStateList.valueOf(color)
+    }
+
+    fun setSecondaryProgressTextColorRes(@ColorRes id : Int){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            secondaryProgressTextColor = context.resources.getColorStateList(id,context.theme)
+        }else{
+            val color = context.resources.getColor(id)
+            setSecondaryProgressTextColor(color)
+        }
+    }
+
+    fun setLabelColor(@ColorInt color : Int){
+        labelColor = ColorStateList.valueOf(color)
+    }
+
+    fun setLabelColorRes(@ColorRes id : Int){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            labelColor = context.resources.getColorStateList(id,context.theme)
+        }else{
+            val color = context.resources.getColor(id)
+            setLabelColor(color)
         }
     }
 

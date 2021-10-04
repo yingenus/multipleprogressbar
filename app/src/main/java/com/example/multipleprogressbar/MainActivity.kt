@@ -53,6 +53,17 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, View.
             }
         }
 
+        findViewById<Switch>(R.id.showSwitch1).setOnCheckedChangeListener { _, checked ->
+            val childs = progressBar.children
+            for (child in childs){
+                if (child is ProgressItem){
+                    child.showLabel = checked
+                    child.showSecondaryProgressText = checked
+                    child.showProgressText = checked
+                }
+            }
+        }
+
         progressSizeEd.addTextChangedListener(object : TextWatcher{
             override fun afterTextChanged(s: Editable?) {
                 if(!s.isNullOrEmpty())
@@ -206,9 +217,12 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, View.
     private fun getProgressItem(): ProgressItem {
         val pr = ProgressItem(applicationContext)
         val lastItem = progressBar.childCount
-        val newIndex = lastItem % 6
+        val newIndex = lastItem % 5
         pr.setProgress(50,false)
-
+        pr.setProgressTextColorRes(R.color.textcolor)
+        pr.setSecondaryProgressTextColorRes(R.color.textcolor)
+        pr.setLabelColorRes(R.color.textcolor)
+        pr.labelText = "test"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             if (colorSelectors.size > newIndex && secondColorSelectors.size > newIndex){
                 pr.progressColor = colorSelectors[newIndex]

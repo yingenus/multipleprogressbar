@@ -124,15 +124,6 @@
                 android:layout_column="0"
                 android:text="duration" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_row="5"
-                android:layout_marginTop="20dp"
-                android:layout_column="0"
-                android:text="enable" />
-
-
 
             <SeekBar
                 android:id="@+id/seekBar5"
@@ -186,9 +177,23 @@
                 android:id="@+id/enableSwitch1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:layout_row="5"
+                android:text="enable"
                 android:checked="true"
                 android:layout_column="1"
+                android:layout_gravity="center"
+                />
+
+            <Switch
+                android:id="@+id/showSwitch1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_row="5"
+                android:text="showText"
+                android:checked="false"
+                android:layout_column="0"
                 android:layout_gravity="center"
                 />
 

@@ -30,14 +30,7 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
         set(value){
             field = value
             if(animate){
-
-                for ( index in 0 until childCount){
-                    val view = super.getChildAt(index)
-
-                    if (view is ProgressItem && view.animation != null ){
-                        view.animation.duration = field.toLong()
-                    }
-                }
+                updateAnimations()
             }
         }
     var progressSize : Float = 10f
@@ -86,14 +79,10 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
     override fun onChanged(orientation: Int, view: ProgressItem) {
         view.clearAnimation()
         val animation = getRotatedAnimation(animationDuration.toLong(),
-                orientation == ProgressItem.Orientation.RIGHT)
+                orientation == ProgressItem.ORIENTATION_RIGHT)
         if (progressItems.first().width>0)
             animation.refDiameter = progressItems.first().width
         view.animation = animation
-    }
-
-    override fun setVisibility(visibility: Int) {
-        super.setVisibility(visibility)
     }
 
     override fun onFinishInflate() {
@@ -198,7 +187,7 @@ public class MultipleProgressBar : FrameLayout, ProgressItem.OrientationChangedO
         }
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         val superPars = super.onSaveInstanceState()
         val bundle = Bundle()
         bundle.putParcelable(SavedParams.superSP,superPars)
