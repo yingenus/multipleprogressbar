@@ -66,9 +66,9 @@ round progress bar with many elements
 ```
 
 ## Demo
-! [] (https://github.com/yingenus/multipleprogressbar/blob/main/IMG_calv80.gif)
+![](https://github.com/yingenus/multipleprogressbar/blob/main/IMG_calv80.gif)
 
-! [] (https://github.com/yingenus/multipleprogressbar/blob/main/IMG_9cum7d.gif)
+![](https://github.com/yingenus/multipleprogressbar/blob/main/IMG_9cum7d.gif)
 
 ## Gradle
 
@@ -87,29 +87,29 @@ MultipleProgressBar attributes :
 
 |name|format|description|
 |:---:|:---:|:---:|
-|mpb_animate|boolean||
-|mpb_animationDuration|integer||
-|mpb_progressSize|dimension||
-|mpb_dividerSize|dimension||
+|mpb_animate|boolean|rotation animation|
+|mpb_animationDuration|integer|duration of a turnover|
+|mpb_progressSize|dimension|progress width|
+|mpb_dividerSize|dimension|distance between elements|
 
 MultipleProgressBarItem attributes:
 
 |name|format|description|
 |:---:|:---:|:---:|
-|mpb_progressColor|color||
-|mpb_secondaryProgressColor|color||
-|mpb_min|integer||
-|mpb_max|integer||
-|mpb_labelText|string||
-|mpb_showLabel|boolean||
-|mpb_labelGravity|enum||
-|mpb_labelColor|color||
-|mpb_progressText|enum||
-|mpb_progressTextColor|color||
-|mpb_showProgressText|boolean||
-|mpb_progressTextGravity|enum||
-|mpb_secondaryProgressTextColor|color||
-|mpb_showSecondaryProgressText|boolean||
-|mpb_progress|integer||
-|mpb_secondaryProgress|integer||
-|mpb_orientation|integer||
+|mpb_progressColor|color|progress bar color|
+|mpb_secondaryProgressColor|color|second progress indicator color|
+|mpb_min|integer|minimum progress|
+|mpb_max|integer|maximum progress|
+|mpb_labelText|string|title text|
+|mpb_showLabel|boolean|show title|
+|mpb_labelGravity|enum|title position IN- inside the progress bar, OUT- outside the progress bar ,adaptive- any|
+|mpb_labelColor|color|title color|
+|mpb_progressText|enum|percent-percentage progress, raf- in original values|
+|mpb_progressTextColor|color|progress indicator color|
+|mpb_showProgressText|boolean|show progress indicator|
+|mpb_progressTextGravity|enum|position IN- inside the progress bar, OUT- outside the progress bar ,adaptive- any|
+|mpb_secondaryProgressTextColor|color|second progress indicator color|
+|mpb_showSecondaryProgressText|boolean|show second progress indicator|
+|mpb_progress|integer|progress|
+|mpb_secondaryProgress|integer|second progress |
+|mpb_orientation|integer|left - progress changes from left to right, right- progress changes from right to left|
