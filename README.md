@@ -78,7 +78,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.yingenus:multipleprogressbar:v1.0.1'
+    implementation 'com.github.yingenus:multipleprogressbar:v1.0'
 }
 
 ```
