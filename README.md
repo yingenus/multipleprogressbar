@@ -1,11 +1,11 @@
 
 ## MultipleProgressBar
 
-round progress bar with many elements
+round progress bar for android with many elements
 
 ## Kotlin example 
 
-```groovy
+```kotlin
 	val multipleProgressBar = MultipleProgressBar(applicationContext!!).apply {
             animate = true
             animationDuration = 6000
@@ -28,7 +28,7 @@ round progress bar with many elements
 
 ## XML example
 
-```groovy
+```xml
 
 <com.yingenus.multipleprogressbar.MultipleProgressBar
     android:id="@+id/test_multipleLineProgressBar"
@@ -73,9 +73,12 @@ round progress bar with many elements
 ## Gradle
 
 ```groovy
+repositories {
+        maven { url 'https://jitpack.io' }
+}
 
 dependencies {
-    implementation 'com.github.yingenus:MultipleProgressBar:1.0.0'
+    implementation 'com.github.yingenus:multipleprogressbar:v1.0.1'
 }
 
 ```
